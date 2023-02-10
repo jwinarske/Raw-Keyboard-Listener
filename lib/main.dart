@@ -43,17 +43,24 @@ class _MyKeyExampleState extends State<MyKeyExample> {
   KeyEventResult _handleKeyEvent(FocusNode node, RawKeyEvent event) {
     setState(() {
       print(event);
-      if (event.logicalKey == LogicalKeyboardKey.keyQ) {
-        _message = 'Pressed the "Q" key!';
-      } else {
-        if (kReleaseMode) {
-          _message =
-              'Not a Q: Pressed 0x${event.logicalKey.keyId.toRadixString(16)}';
-        } else {
-          // As the name implies, the debugName will only print useful
-          // information in debug mode.
-          _message = 'Not a Q: Pressed ${event.logicalKey.debugName}';
+      var keyLabel = 
+        event.logicalKey.keyLabel.isNotEmpty ? 
+          event.logicalKey.keyLabel : 
+          event.physicalKey.debugName.toString();
+
+      if (keyLabel.isEmpty) {
+        keyLabel = "0x${event.logicalKey.keyId.toRadixString(16)}";
+      }
+
+      if (event is RawKeyDownEvent) {
+        if (event.repeat) {
+            _message = "KeyRepeat_$keyLabel";
         }
+        else {
+            _message = "KeyDown_$keyLabel";
+        }
+      } else if (event is RawKeyUpEvent) {
+        _message = "KeyUp_$keyLabel";
       }
     });
     return event.logicalKey == LogicalKeyboardKey.keyQ
